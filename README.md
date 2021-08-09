@@ -2,40 +2,26 @@
 
 Automatically inject Cordova platform and plugin scripts into your site.
 
-## Setup
+This is a fork from https://github.com/formulateco/cordova-plugin-injectview
 
-This plugin supports Android and iOS.
-
-```
-cordova plugin add cordova-plugin-injectview
-```
+This fork add the following feature :
+    - Add custom js files to the inject list
 
 ## Usage
 
-Adding the plugin to your project is sufficient.
+For adding cutom js to the injected files list, you have to create the folder `injectview-custom-js` in the `www` source folder and inside a file named `cordova-plugin-injectview.json`.
 
-At runtime, when a page loads in the Cordova-hosted web view, this plugin injects
-Cordova's platform scripts as well as all of your plugin scripts into the web view.
-By doing this, you can integrate Cordova with a remotely hosted site without needing
-to explicitly include Cordova script tags or do request rewrites to load your Cordova
-plugin scripts.
+The format of this file is similar to the `cordova-plugin-injectview.json` created by the plugin.
 
-## How It Works
+Example : 
 
-This plugin registers a number of [Cordova hooks](https://cordova.apache.org/docs/en/latest/guide/appdev/hooks/)
-in [plugin.xml](plugin.xml) that execute [update-manifest.js](scripts/update-manifest.js).
-This script parses each of your project configurations located at `platforms/{platform}/{platform}.json`
-and generates a manifest file, `cordova-plugin-injectview.json`, that contains relative paths to Cordova's
-platform scripts as well as your plugin scripts. This manifest file gets compiled into your app as a resource.
+```
+["www/myScript1.js", "www/myScript2.js"]
+```
 
-At runtime, this plugin hooks into the web view's page load event: `onPageFinished` for Android,
-`CDVPageDidLoadNotification` for iOS. Once the event fires, this plugin parses the manifest to determine
-all script paths, reads each script, concatenates everything into one large script, then evaluates the
-whole thing using the web view's JavaScript engine.
-
-## License
-
-Copyright &copy; 2015 Fabian Strachanski  \
-Copyright &copy; 2016 Sam Beran  \
-Copyright &copy; 2020 Chris Schmich  \
-MIT License. See [LICENSE](LICENSE) for details.
+Don't forget to add your scrpits as resourcfile in you config.xml :
+```
+    <!-- resources files -->
+    <resource-file src="www/myScript1.js" target="platform_www/myScript1.js" />
+    <resource-file src="www/myScript2.js" target="platform_www/myScript2.js" />
+```

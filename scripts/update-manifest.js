@@ -5,7 +5,7 @@ function fatal(message) {
     throw new Error(`cordova-plugin-injectview: ${message}`);
 }
 
-function createManifest(rootPath, platformName, manifestFilename) {
+function createManifest(rootPath, platformName, manifestFilename, manifestCustomJsInjectFileName) {
     let manifestDir = path.dirname(manifestFilename);
     if (!fs.existsSync(manifestDir)) {
         // The manifest's parent directory might not exist yet, e.g. after a cordova clean.
@@ -37,6 +37,15 @@ function createManifest(rootPath, platformName, manifestFilename) {
         }
 
         scriptFilenames.push(path.posix.join('www', filename));
+    }
+
+    // Include www/injectview-custom-js/cordova-plugin-injectview.json in anifest
+    if(fs.existsSync(manifestCustomJsInjectFileName))
+    {
+        let customJsInjectConfig = JSON.parse(fs.readFileSync(manifestCustomJsInjectFileName));
+        for (let jsFilename of customJsInjectConfig) {
+            scriptFilenames.push(jsFilename);
+        }
     }
 
     // Write script manifest to be included as an app resource.
@@ -79,6 +88,8 @@ module.exports = function(context) {
             platformPaths.push(path.join(rootPath, 'platforms', platformName, 'www'));
         }
 
+        let manifestCustomJsInjectFileName = path.join(rootPath, 'www', 'injectview-custom-js', 'cordova-plugin-injectview.json');
+
         for (let platformPath of platformPaths) {
             let manifestFilename = path.join(platformPath, 'cordova-plugin-injectview.json');
 
@@ -86,7 +97,7 @@ module.exports = function(context) {
             if (context.hook == 'before_plugin_uninstall') {
                 removeManifest(manifestFilename);
             } else {
-                createManifest(rootPath, platformName, manifestFilename);
+                createManifest(rootPath, platformName, manifestFilename, manifestCustomJsInjectFileName);
             }
         }
     }
